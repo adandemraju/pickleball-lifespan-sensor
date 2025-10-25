@@ -1,0 +1,158 @@
+const int trigPin = 9; // Trigger pin of ultrasonic sensor 
+
+const int echoPin = 10; // Echo pin of ultrasonic sensor 
+
+const int greenLED = 11; // Pin for green LED 
+
+const int redLED = 12; // Pin for red LED 
+
+
+unsigned long firstHitTime = 0; 
+
+unsigned long secondHitTime = 0; 
+
+bool firstHitDetected = false; 
+
+bool waitingForSecondHit = false; 
+
+float cor = 0.0; 
+
+
+void setup() { 
+
+pinMode(trigPin, OUTPUT); 
+
+pinMode(echoPin, INPUT); 
+
+pinMode(greenLED, OUTPUT); 
+
+pinMode(redLED, OUTPUT); 
+
+Serial.begin(9600); 
+
+} 
+
+
+void loop() { 
+
+long duration, distanceCM; 
+
+
+// Send a pulse to trigger the ultrasonic sensor 
+
+digitalWrite(trigPin, LOW); 
+
+delayMicroseconds(2); 
+
+digitalWrite(trigPin, HIGH); 
+
+delayMicroseconds(10); 
+
+digitalWrite(trigPin, LOW); 
+
+
+// Read the echo pin to get the duration of the pulse 
+
+duration = pulseIn(echoPin, HIGH); 
+
+
+// Calculate the distance in centimeters 
+
+distanceCM = duration * 0.034 / 2; 
+
+
+// Threshold for detecting the ball hit 
+
+if (distanceCM < 20) { // Ball is close to paddle 
+
+if (!firstHitDetected) { 
+
+firstHitTime = millis(); 
+
+firstHitDetected = true; 
+
+waitingForSecondHit = true; 
+
+Serial.println("First hit detected!"); 
+
+delay(300); // debounce 
+
+} else if (waitingForSecondHit) { 
+
+secondHitTime = millis(); 
+
+unsigned long deltaTime = secondHitTime - firstHitTime; 
+
+cor = calculateCOR(deltaTime); 
+
+Serial.print("Second hit detected! Time between hits: "); 
+
+Serial.print(deltaTime); 
+
+Serial.println(" ms"); 
+
+Serial.print("Estimated Coefficient of Restitution (COR): "); 
+
+Serial.println(cor, 3); 
+
+
+// Light up LEDs based on COR value 
+
+if (cor > 0.25) { 
+
+Serial.println("COR is above 0.25, lighting up green LED."); 
+
+digitalWrite(greenLED, HIGH); 
+
+digitalWrite(redLED, LOW); 
+
+} else { 
+
+Serial.println("COR is below 0.25, lighting up red LED."); 
+
+digitalWrite(greenLED, LOW); 
+
+digitalWrite(redLED, HIGH); 
+
+} 
+
+
+// Wait for 2 seconds before turning off the LEDs 
+
+delay(2000); 
+
+digitalWrite(greenLED, LOW); 
+
+digitalWrite(redLED, LOW); 
+
+
+// Reset 
+
+firstHitDetected = false; 
+
+waitingForSecondHit = false; 
+
+delay(300); // debounce 
+
+
+// Wait for 5 seconds before taking another reading 
+
+delay(3000); 
+
+} 
+
+} 
+
+
+delay(50); 
+
+} 
+
+
+float calculateCOR(unsigned long timeBetweenHits) { 
+
+float corValue = map(timeBetweenHits, 100, 2000, 10, 100); // scale to 10-100 
+
+return constrain(corValue / 100.0, 0.1, 1.0); 
+
+} 
