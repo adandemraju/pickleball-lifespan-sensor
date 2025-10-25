@@ -1,7 +1,7 @@
 # 🏓 Dura-Paddle  
 *A device to evaluate pickleball paddle degradation by measuring the Coefficient of Restitution (COR)*  
 
-![UVA Logo](https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/University_of_Virginia_logo.svg/2560px-University_of_Virginia_logo.svg.png)  
+![DOE Logo]([https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/University_of_Virginia_logo.svg/2560px-University_of_Virginia_logo.svg.png](https://cdn.freebiesupply.com/logos/large/2x/us-department-of-energy-logo-png-transparent.png))  
 
 ---
 
